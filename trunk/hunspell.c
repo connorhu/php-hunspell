@@ -168,8 +168,6 @@ PHP_METHOD(hunspell, suggest)
   char *word;
   int word_len, i;
 
-  array_init(return_value);
-
   if (this)
   {
     ze_obj = (ze_hunspell_object*) zend_object_store_get_object(this TSRMLS_CC);
@@ -189,7 +187,7 @@ PHP_METHOD(hunspell, suggest)
 
   int spell_count = Hunspell_spell(ze_obj->dic, word);
   
-  if (spell_count == 0)
+  if (spell_count != 0)
   {
     RETURN_FALSE;
   }
@@ -204,6 +202,8 @@ PHP_METHOD(hunspell, suggest)
     }
     else
     {
+      // if (array_init(return_value) == FAILURE) php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unable to initialize array");
+      array_init(return_value);
       for (i = 0; i < sl_count; ++i)
       {
         add_next_index_string(return_value, slist[i], 1);
@@ -211,25 +211,24 @@ PHP_METHOD(hunspell, suggest)
       free(slist);
     }
   }
-  RETURN_ZVAL(return_value, 0, 1);
 }
 
 
-static ZEND_BEGIN_ARG_INFO(arginfo_hunspell___construct, 0)
+ZEND_BEGIN_ARG_INFO(arginfo_hunspell___construct, 0)
     ZEND_ARG_INFO(0, dic_path) /* parameter name */
     ZEND_ARG_INFO(0, aff_path) /* parameter name */
 ZEND_END_ARG_INFO();
 
-static ZEND_BEGIN_ARG_INFO(arginfo_hunspell_open, 0)
+ZEND_BEGIN_ARG_INFO(arginfo_hunspell_open, 0)
     ZEND_ARG_INFO(0, dic_path) /* parameter name */
     ZEND_ARG_INFO(0, aff_path) /* parameter name */
 ZEND_END_ARG_INFO();
 
-static ZEND_BEGIN_ARG_INFO(arginfo_hunspell_spell, 0)
+ZEND_BEGIN_ARG_INFO(arginfo_hunspell_spell, 0)
     ZEND_ARG_INFO(0, word) /* parameter name */
 ZEND_END_ARG_INFO();
 
-static ZEND_BEGIN_ARG_INFO(arginfo_hunspell_suggest, 0)
+ZEND_BEGIN_ARG_INFO(arginfo_hunspell_suggest, 0)
     ZEND_ARG_INFO(0, word) /* parameter name */
 ZEND_END_ARG_INFO();
 
