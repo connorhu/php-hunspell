@@ -52,7 +52,6 @@ PHP_METHOD(Hunspell_Analysis, __construct) {
 
     zend_update_property_str(hunspell_analysis_ce, Z_OBJ_P(ZEND_THIS),
         "raw", sizeof("raw") - 1, raw);
-    zend_string_addref(raw);
 
     zval fields;
     hunspell_parse_analysis_line(ZSTR_VAL(raw), ZSTR_LEN(raw), &fields);
