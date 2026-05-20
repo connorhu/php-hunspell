@@ -7,6 +7,7 @@ extern "C" {
 
 #include <unistd.h>
 #include <vector>
+#include <hunspell/hunspell.hxx>
 
 zend_class_entry *hunspell_dictionary_ce = nullptr;
 static zend_object_handlers hunspell_dictionary_handlers;
@@ -79,6 +80,15 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_addDictionary, 0, 1, IS_VOID, 0)
     ZEND_ARG_TYPE_INFO(0, dicPath, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_getEncoding, 0, 0, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_getVersion, 0, 0, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_getWordChars, 0, 0, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_dictionary_construct, 0, 0, 2)
@@ -301,6 +311,36 @@ PHP_METHOD(Hunspell_Dictionary, addDictionary) {
     }
 }
 
+PHP_METHOD(Hunspell_Dictionary, getEncoding) {
+    ZEND_PARSE_PARAMETERS_NONE();
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    const char *enc = Hunspell_get_dic_encoding(obj->handle);
+    if (enc == nullptr) RETURN_EMPTY_STRING();
+    RETURN_STRING(enc);
+}
+
+PHP_METHOD(Hunspell_Dictionary, getVersion) {
+    ZEND_PARSE_PARAMETERS_NONE();
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    struct { void *m_Impl; } facade{ obj->handle };
+    Hunspell *cpp = reinterpret_cast<Hunspell *>(&facade);
+    const std::string &ver = cpp->get_version_cpp();
+    RETURN_STRINGL(ver.data(), static_cast<size_t>(ver.size()));
+}
+
+PHP_METHOD(Hunspell_Dictionary, getWordChars) {
+    ZEND_PARSE_PARAMETERS_NONE();
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    /* Hunspell_create() returns a HunspellImpl* (not Hunspell*).
+     * Hunspell has no vtable and its only member is HunspellImpl* m_Impl at
+     * offset 0.  Build a layout-compatible local struct so that the C++
+     * method dispatch finds the right m_Impl pointer. */
+    struct { void *m_Impl; } facade{ obj->handle };
+    Hunspell *cpp = reinterpret_cast<Hunspell *>(&facade);
+    const std::string &wc = cpp->get_wordchars_cpp();
+    RETURN_STRINGL(wc.data(), static_cast<size_t>(wc.size()));
+}
+
 static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, __construct, arginfo_dictionary_construct,
            ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
@@ -314,6 +354,9 @@ static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, addWithAffix, arginfo_dictionary_addWithAffix, ZEND_ACC_PUBLIC)
     PHP_ME(Hunspell_Dictionary, remove,          arginfo_dictionary_remove,          ZEND_ACC_PUBLIC)
     PHP_ME(Hunspell_Dictionary, addDictionary,   arginfo_dictionary_addDictionary,   ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, getEncoding,  arginfo_dictionary_getEncoding,  ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, getVersion,   arginfo_dictionary_getVersion,   ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, getWordChars, arginfo_dictionary_getWordChars, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
