@@ -2281,7 +2281,7 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 
 ## Task 19: Add the GitHub Actions workflow
 
-**Goal:** `.github/workflows/ci.yml` runs five jobs: `linux-pie` (PHP 8.2/8.3/8.4), `linux-phpize`, `linux-zts`, `macos`, `asan`.
+**Goal:** `.github/workflows/ci.yml` runs five jobs: `linux-pie` (PHP 8.2/8.3/8.4/8.5), `linux-phpize`, `linux-zts`, `macos`, `asan`.
 
 **Files:**
 - Create: `.github/workflows/ci.yml`
@@ -2304,7 +2304,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: { php: ['8.2', '8.3', '8.4'] }
+      matrix: { php: ['8.2', '8.3', '8.4', '8.5'] }
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -2385,7 +2385,7 @@ git commit -m "$(cat <<'EOF'
 ci: add GitHub Actions matrix (linux-pie / linux-phpize / linux-zts / macos / asan)
 
 Five jobs ensure the extension builds and tests pass on Ubuntu under
-PIE for PHP 8.2/8.3/8.4, on Ubuntu under classic phpize, on Ubuntu ZTS,
+PIE for PHP 8.2/8.3/8.4/8.5, on Ubuntu under classic phpize, on Ubuntu ZTS,
 on macOS via brew + PIE, and on Ubuntu with AddressSanitizer enabled.
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
@@ -2576,7 +2576,7 @@ The C API only exposes UTF-16 word chars. To return UTF-8, `Dictionary::getWordC
 ## CI
 
 `.github/workflows/ci.yml` runs five jobs:
-- `linux-pie` × PHP {8.2, 8.3, 8.4}: PIE install + phpt
+- `linux-pie` × PHP {8.2, 8.3, 8.4, 8.5}: PIE install + phpt
 - `linux-phpize`: classic phpize build + phpt
 - `linux-zts`: ZTS build + phpt (no shared-Dictionary test; concurrent use is not contracted)
 - `macos`: macOS + brew + PIE

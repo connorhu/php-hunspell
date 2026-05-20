@@ -106,7 +106,7 @@ The minimal test dictionary lives in `tests/data/test.aff` + `tests/data/test.di
 
 `.github/workflows/ci.yml` runs five jobs on push and pull request to `main`:
 
-- `linux-pie` × PHP {8.2, 8.3, 8.4}: `pie install ./` + phpt
+- `linux-pie` × PHP {8.2, 8.3, 8.4, 8.5}: `pie install ./` + phpt
 - `linux-phpize`: classic phpize build + phpt
 - `linux-zts`: ZTS build + phpt (concurrent use of a single Dictionary across threads is not contracted)
 - `macos`: macOS + brew + PIE
