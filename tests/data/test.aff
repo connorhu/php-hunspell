@@ -1,0 +1,5 @@
+SET UTF-8
+TRY abcdefghijklmnopqrstuvwxyz
+WORDCHARS abcdefghijklmnopqrstuvwxyz
+SFX A Y 1
+SFX A 0 s .
