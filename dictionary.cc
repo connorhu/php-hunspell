@@ -29,7 +29,20 @@ static void hunspell_dictionary_free(zend_object *zobj) {
     zend_object_std_dtor(&obj->std);
 }
 
+static void hunspell_strlist_to_array_and_free(
+        Hunhandle *handle, char **slst, int n, zval *return_value) {
+    array_init_size(return_value, n);
+    for (int i = 0; i < n; i++) {
+        add_next_index_string(return_value, slst[i]);
+    }
+    Hunspell_free_list(handle, &slst, n);
+}
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_spell, 0, 1, _IS_BOOL, 0)
+    ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_suggest, 0, 1, IS_ARRAY, 0)
     ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -88,10 +101,27 @@ PHP_METHOD(Hunspell_Dictionary, spell) {
     RETURN_BOOL(ok != 0);
 }
 
+PHP_METHOD(Hunspell_Dictionary, suggest) {
+    zend_string *word;
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_STR(word)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    if (Hunspell_spell(obj->handle, ZSTR_VAL(word))) {
+        array_init(return_value);
+        return;
+    }
+    char **slst = nullptr;
+    int n = Hunspell_suggest(obj->handle, &slst, ZSTR_VAL(word));
+    hunspell_strlist_to_array_and_free(obj->handle, slst, n, return_value);
+}
+
 static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, __construct, arginfo_dictionary_construct,
            ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(Hunspell_Dictionary, spell, arginfo_dictionary_spell, ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, suggest, arginfo_dictionary_suggest, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
