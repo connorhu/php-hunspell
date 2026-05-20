@@ -64,6 +64,19 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_generate, 0, 2, IS_AR
     ZEND_ARG_TYPE_MASK(0, model, MAY_BE_STRING | MAY_BE_ARRAY, nullptr)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_add, 0, 1, IS_VOID, 0)
+    ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_addWithAffix, 0, 2, IS_VOID, 0)
+    ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
+    ZEND_ARG_TYPE_INFO(0, example, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_remove, 0, 1, IS_VOID, 0)
+    ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_dictionary_construct, 0, 0, 2)
     ZEND_ARG_TYPE_INFO(0, affPath, IS_STRING, 0)
     ZEND_ARG_TYPE_INFO(0, dicPath, IS_STRING, 0)
@@ -233,6 +246,37 @@ PHP_METHOD(Hunspell_Dictionary, generate) {
     hunspell_strlist_to_array_and_free(obj->handle, slst, n, return_value);
 }
 
+PHP_METHOD(Hunspell_Dictionary, add) {
+    zend_string *word;
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_STR(word)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    (void) Hunspell_add(obj->handle, ZSTR_VAL(word));
+}
+
+PHP_METHOD(Hunspell_Dictionary, addWithAffix) {
+    zend_string *word, *example;
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_STR(word)
+        Z_PARAM_STR(example)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    (void) Hunspell_add_with_affix(obj->handle, ZSTR_VAL(word), ZSTR_VAL(example));
+}
+
+PHP_METHOD(Hunspell_Dictionary, remove) {
+    zend_string *word;
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_STR(word)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    (void) Hunspell_remove(obj->handle, ZSTR_VAL(word));
+}
+
 static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, __construct, arginfo_dictionary_construct,
            ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
@@ -242,6 +286,9 @@ static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, analyze, arginfo_dictionary_analyze, ZEND_ACC_PUBLIC)
     PHP_ME(Hunspell_Dictionary, stem, arginfo_dictionary_stem, ZEND_ACC_PUBLIC)
     PHP_ME(Hunspell_Dictionary, generate, arginfo_dictionary_generate, ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, add,          arginfo_dictionary_add,          ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, addWithAffix, arginfo_dictionary_addWithAffix, ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, remove,       arginfo_dictionary_remove,       ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
