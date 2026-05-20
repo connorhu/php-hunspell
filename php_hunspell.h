@@ -26,7 +26,7 @@ typedef struct {
 
 extern zend_class_entry *hunspell_dictionary_ce;
 
-static inline php_hunspell_object *php_hunspell_from_obj(zend_object *obj) {
+inline php_hunspell_object *php_hunspell_from_obj(zend_object *obj) {
     return reinterpret_cast<php_hunspell_object *>(
         reinterpret_cast<char *>(obj) - XtOffsetOf(php_hunspell_object, std));
 }

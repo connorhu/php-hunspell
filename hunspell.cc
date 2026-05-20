@@ -2,7 +2,6 @@
 
 extern "C" {
 #include "ext/standard/info.h"
-#include <hunspell/hunspell.h>
 }
 
 static PHP_MINIT_FUNCTION(hunspell) {
