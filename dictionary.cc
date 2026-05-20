@@ -29,6 +29,10 @@ static void hunspell_dictionary_free(zend_object *zobj) {
     zend_object_std_dtor(&obj->std);
 }
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_spell, 0, 1, _IS_BOOL, 0)
+    ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_dictionary_construct, 0, 0, 2)
     ZEND_ARG_TYPE_INFO(0, affPath, IS_STRING, 0)
     ZEND_ARG_TYPE_INFO(0, dicPath, IS_STRING, 0)
@@ -73,9 +77,21 @@ PHP_METHOD(Hunspell_Dictionary, __construct) {
     }
 }
 
+PHP_METHOD(Hunspell_Dictionary, spell) {
+    zend_string *word;
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_STR(word)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    int ok = Hunspell_spell(obj->handle, ZSTR_VAL(word));
+    RETURN_BOOL(ok != 0);
+}
+
 static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, __construct, arginfo_dictionary_construct,
            ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+    PHP_ME(Hunspell_Dictionary, spell, arginfo_dictionary_spell, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
