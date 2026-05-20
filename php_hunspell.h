@@ -33,4 +33,13 @@ inline php_hunspell_object *php_hunspell_from_obj(zend_object *obj) {
 
 void hunspell_register_dictionary_class(void);
 
+extern zend_class_entry *hunspell_analysis_ce;
+
+void hunspell_register_analysis_class(void);
+
+/* Parser: tokenize raw on whitespace, split each token on first ':'.
+ * Repeated keys append. Tokens without ':' are skipped.
+ * out_fields is initialized as an associative array by the parser. */
+void hunspell_parse_analysis_line(const char *raw, size_t len, zval *out_fields);
+
 #endif /* PHP_HUNSPELL_H */
