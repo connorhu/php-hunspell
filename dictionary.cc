@@ -244,7 +244,7 @@ PHP_METHOD(Hunspell_Dictionary, generate) {
             if (Z_TYPE_P(item) != IS_STRING) {
                 zend_argument_type_error(2,
                     "item #%u must be of type string, %s given",
-                    i, zend_zval_value_name(item));
+                    i, zend_zval_type_name(item));
                 return;
             }
             desc[i++] = Z_STRVAL_P(item);
@@ -253,7 +253,7 @@ PHP_METHOD(Hunspell_Dictionary, generate) {
             const_cast<char **>(desc.data()), static_cast<int>(count));
     } else {
         zend_argument_type_error(2, "must be of type string|array, %s given",
-            zend_zval_value_name(model));
+            zend_zval_type_name(model));
         return;
     }
 
