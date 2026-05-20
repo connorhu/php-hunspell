@@ -23,17 +23,14 @@ jobs:
           coverage: none
       - name: Install libhunspell
         run: sudo apt-get update && sudo apt-get install -y libhunspell-dev pkg-config
-      - name: PIE build (from local path repository, no system enable)
+      - name: PIE install (from local path repository, full install via sudo)
         run: |
           pie repository:add path "$(pwd)"
-          pie install --skip-enable-extension codeconjure/php-hunspell:@dev
-      - name: Locate the PIE-built extension
-        id: locate-ext
-        run: echo "ext_so=$(find ~/.config/pie -name 'hunspell.so' | head -1)" >> "$GITHUB_OUTPUT"
+          sudo -E "$(which pie)" install codeconjure/php-hunspell:@dev
       - name: Verify extension loads
-        run: php -d extension="${{ steps.locate-ext.outputs.ext_so }}" -m | grep -i hunspell
+        run: php -m | grep -i hunspell
       - name: Run phpt
-        run: php -d extension="${{ steps.locate-ext.outputs.ext_so }}" run-tests.php -q -p "$(which php)" tests/
+        run: php run-tests.php -q tests/
 
   linux-phpize:
     name: linux / phpize / php 8.3
@@ -87,17 +84,14 @@ jobs:
           coverage: none
       - name: Install libhunspell
         run: brew install hunspell pkg-config
-      - name: PIE build (from local path repository, no system enable)
+      - name: PIE install (from local path repository, full install via sudo)
         run: |
           pie repository:add path "$(pwd)"
-          pie install --skip-enable-extension codeconjure/php-hunspell:@dev
-      - name: Locate the PIE-built extension
-        id: locate-ext
-        run: echo "ext_so=$(find ~/.config/pie -name 'hunspell.so' | head -1)" >> "$GITHUB_OUTPUT"
+          sudo -E "$(which pie)" install codeconjure/php-hunspell:@dev
       - name: Verify extension loads
-        run: php -d extension="${{ steps.locate-ext.outputs.ext_so }}" -m | grep -i hunspell
+        run: php -m | grep -i hunspell
       - name: Run phpt
-        run: php -d extension="${{ steps.locate-ext.outputs.ext_so }}" run-tests.php -q -p "$(which php)" tests/
+        run: php run-tests.php -q tests/
 
   asan:
     name: linux / asan / php 8.3-debug
