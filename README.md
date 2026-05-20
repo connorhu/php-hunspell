@@ -14,7 +14,7 @@ PHP 8.2+ binding for the [Hunspell](https://hunspell.github.io/) spell-checker a
 ## Install via PIE (recommended)
 
 ```sh
-pie install nepenektar/php-hunspell
+pie install codeconjure/php-hunspell
 ```
 
 ## Install via phpize

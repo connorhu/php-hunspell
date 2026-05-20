@@ -355,7 +355,7 @@ The test dictionary is a synthetic minimal `.aff`/`.dic` that exercises every AP
 
 ```json
 {
-    "name": "nepenektar/php-hunspell",
+    "name": "codeconjure/php-hunspell",
     "description": "PHP binding for the Hunspell spell-checker and morphological analyzer",
     "type": "php-ext",
     "license": "PHP-3.01",
@@ -369,7 +369,7 @@ The test dictionary is a synthetic minimal `.aff`/`.dic` that exercises every AP
 }
 ```
 
-`"type": "php-ext"` tells PIE this is a buildable extension. `pie install ./` (local) or `pie install nepenektar/php-hunspell` (after release to Packagist) runs `phpize && ./configure && make && make install` and adds the `extension=hunspell` line to the active `php.ini`. The declared ZTS support is backed by a real ZTS job in CI (below), not just a flag.
+`"type": "php-ext"` tells PIE this is a buildable extension. `pie install ./` (local) or `pie install codeconjure/php-hunspell` (after release to Packagist) runs `phpize && ./configure && make && make install` and adds the `extension=hunspell` line to the active `php.ini`. The declared ZTS support is backed by a real ZTS job in CI (below), not just a flag.
 
 ### GitHub Actions matrix
 

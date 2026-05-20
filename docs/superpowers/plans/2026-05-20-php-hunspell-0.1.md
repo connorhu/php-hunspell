@@ -2237,7 +2237,7 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 
 ```json
 {
-    "name": "nepenektar/php-hunspell",
+    "name": "codeconjure/php-hunspell",
     "description": "PHP binding for the Hunspell spell-checker and morphological analyzer",
     "type": "php-ext",
     "license": "PHP-3.01",
@@ -2410,7 +2410,7 @@ Watch the Actions tab until all five jobs go green. If a job fails on something 
 ```markdown
 # php-hunspell
 
-[![CI](https://github.com/nepenektar/php-hunspell/actions/workflows/ci.yml/badge.svg)](https://github.com/nepenektar/php-hunspell/actions/workflows/ci.yml)
+[![CI](https://github.com/codeconjure/php-hunspell/actions/workflows/ci.yml/badge.svg)](https://github.com/codeconjure/php-hunspell/actions/workflows/ci.yml)
 
 PHP 8.2+ binding for the [Hunspell](https://hunspell.github.io/) spell-checker and morphological analyzer. Exposes spell-check, suggestions, morphological analysis (`analyze`, `stem`, `generate`), runtime dictionary mutation (`add`, `addWithAffix`, `remove`, `addDictionary`), and dictionary metadata.
 
@@ -2424,13 +2424,13 @@ PHP 8.2+ binding for the [Hunspell](https://hunspell.github.io/) spell-checker a
 ## Install via PIE (recommended)
 
 ```sh
-pie install nepenektar/php-hunspell
+pie install codeconjure/php-hunspell
 ```
 
 ## Install via phpize
 
 ```sh
-git clone https://github.com/nepenektar/php-hunspell.git
+git clone https://github.com/codeconjure/php-hunspell.git
 cd php-hunspell
 phpize
 ./configure --enable-hunspell

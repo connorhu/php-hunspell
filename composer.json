@@ -1,5 +1,5 @@
 {
-    "name": "nepenektar/php-hunspell",
+    "name": "codeconjure/php-hunspell",
     "description": "PHP binding for the Hunspell spell-checker and morphological analyzer",
     "type": "php-ext",
     "license": "PHP-3.01",
