@@ -6,6 +6,7 @@ extern "C" {
 }
 
 #include <unistd.h>
+#include <vector>
 
 zend_class_entry *hunspell_dictionary_ce = nullptr;
 static zend_object_handlers hunspell_dictionary_handlers;
@@ -56,6 +57,11 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_stem, 0, 1, IS_ARRAY, 0)
     ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_generate, 0, 2, IS_ARRAY, 0)
+    ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
+    ZEND_ARG_TYPE_MASK(0, model, MAY_BE_STRING | MAY_BE_ARRAY, nullptr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_dictionary_construct, 0, 0, 2)
@@ -187,6 +193,46 @@ PHP_METHOD(Hunspell_Dictionary, stem) {
     hunspell_strlist_to_array_and_free(obj->handle, slst, n, return_value);
 }
 
+PHP_METHOD(Hunspell_Dictionary, generate) {
+    zend_string *word;
+    zval *model;
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_STR(word)
+        Z_PARAM_ZVAL(model)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    char **slst = nullptr;
+    int n = 0;
+
+    if (Z_TYPE_P(model) == IS_STRING) {
+        n = Hunspell_generate(obj->handle, &slst, ZSTR_VAL(word), Z_STRVAL_P(model));
+    } else if (Z_TYPE_P(model) == IS_ARRAY) {
+        HashTable *ht = Z_ARRVAL_P(model);
+        uint32_t count = zend_hash_num_elements(ht);
+        std::vector<const char *> desc(count);
+        uint32_t i = 0;
+        zval *item;
+        ZEND_HASH_FOREACH_VAL(ht, item) {
+            if (Z_TYPE_P(item) != IS_STRING) {
+                zend_argument_type_error(2,
+                    "item #%u must be of type string, %s given",
+                    i, zend_zval_value_name(item));
+                return;
+            }
+            desc[i++] = Z_STRVAL_P(item);
+        } ZEND_HASH_FOREACH_END();
+        n = Hunspell_generate2(obj->handle, &slst, ZSTR_VAL(word),
+            const_cast<char **>(desc.data()), static_cast<int>(count));
+    } else {
+        zend_argument_type_error(2, "must be of type string|array, %s given",
+            zend_zval_value_name(model));
+        return;
+    }
+
+    hunspell_strlist_to_array_and_free(obj->handle, slst, n, return_value);
+}
+
 static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, __construct, arginfo_dictionary_construct,
            ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
@@ -195,6 +241,7 @@ static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, analyzeRaw, arginfo_dictionary_analyzeRaw, ZEND_ACC_PUBLIC)
     PHP_ME(Hunspell_Dictionary, analyze, arginfo_dictionary_analyze, ZEND_ACC_PUBLIC)
     PHP_ME(Hunspell_Dictionary, stem, arginfo_dictionary_stem, ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, generate, arginfo_dictionary_generate, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
