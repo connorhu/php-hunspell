@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "php_hunspell.h"
 
 extern "C" {
@@ -19,7 +23,7 @@ static PHP_MINFO_FUNCTION(hunspell) {
     php_info_print_table_start();
     php_info_print_table_header(2, "hunspell support", "enabled");
     php_info_print_table_row(2, "module version", PHP_HUNSPELL_VERSION);
-    php_info_print_table_row(2, "libhunspell version", "(pkg-config)");
+    php_info_print_table_row(2, "libhunspell version", HUNSPELL_LIB_VERSION);
     php_info_print_table_end();
 }
 
