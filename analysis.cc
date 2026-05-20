@@ -128,8 +128,9 @@ static const zend_function_entry hunspell_analysis_methods[] = {
 void hunspell_register_analysis_class(void) {
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Hunspell", "Analysis", hunspell_analysis_methods);
-    hunspell_analysis_ce = zend_register_internal_class_with_flags(
-        &ce, nullptr, ZEND_ACC_FINAL | ZEND_ACC_READONLY_CLASS | ZEND_ACC_NO_DYNAMIC_PROPERTIES);
+    hunspell_analysis_ce = zend_register_internal_class(&ce);
+    hunspell_analysis_ce->ce_flags |=
+        ZEND_ACC_FINAL | ZEND_ACC_READONLY_CLASS | ZEND_ACC_NO_DYNAMIC_PROPERTIES;
 
     zval default_undef;
     ZVAL_UNDEF(&default_undef);
