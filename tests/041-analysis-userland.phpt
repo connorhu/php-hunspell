@@ -1,5 +1,5 @@
 --TEST--
-new Analysis($raw) parses key:value tokens into $fields
+new Analysis($raw) parses key:value tokens, and matches Dictionary::analyze byte-for-byte
 --EXTENSIONS--
 hunspell
 --FILE--
@@ -19,6 +19,26 @@ var_dump($b->get('st'));
 /* malformed tokens are silently skipped */
 $c = new Hunspell\Analysis('justaword po:noun  ');
 var_dump($c->getFields());
+
+/* Fast-path / userland equivalence */
+$base = __DIR__ . '/data/test';
+$dict = new Hunspell\Dictionary("$base.aff", "$base.dic");
+
+$raw_list = $dict->analyzeRaw('szótár');
+$obj_list = $dict->analyze('szótár');
+
+for ($i = 0, $n = count($raw_list); $i < $n; $i++) {
+    $userland = new Hunspell\Analysis($raw_list[$i]);
+    $api      = $obj_list[$i];
+
+    if ($userland->getRaw() !== $api->getRaw()) {
+        echo "MISMATCH raw\n"; exit;
+    }
+    if ($userland->getFields() != $api->getFields()) {
+        echo "MISMATCH fields\n"; exit;
+    }
+}
+echo "equivalent\n";
 ?>
 --EXPECT--
 string(45) "st:szótár po:noun ts:NOM al:szótárak hy:3"
@@ -68,3 +88,4 @@ array(1) {
     string(4) "noun"
   }
 }
+equivalent
