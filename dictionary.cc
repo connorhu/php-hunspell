@@ -54,6 +54,10 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_analyze, 0, 1, IS_ARR
     ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dictionary_stem, 0, 1, IS_ARRAY, 0)
+    ZEND_ARG_TYPE_INFO(0, word, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_dictionary_construct, 0, 0, 2)
     ZEND_ARG_TYPE_INFO(0, affPath, IS_STRING, 0)
     ZEND_ARG_TYPE_INFO(0, dicPath, IS_STRING, 0)
@@ -171,6 +175,18 @@ PHP_METHOD(Hunspell_Dictionary, analyze) {
     Hunspell_free_list(obj->handle, &slst, n);
 }
 
+PHP_METHOD(Hunspell_Dictionary, stem) {
+    zend_string *word;
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_STR(word)
+    ZEND_PARSE_PARAMETERS_END();
+
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    char **slst = nullptr;
+    int n = Hunspell_stem(obj->handle, &slst, ZSTR_VAL(word));
+    hunspell_strlist_to_array_and_free(obj->handle, slst, n, return_value);
+}
+
 static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, __construct, arginfo_dictionary_construct,
            ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
@@ -178,6 +194,7 @@ static const zend_function_entry hunspell_dictionary_methods[] = {
     PHP_ME(Hunspell_Dictionary, suggest, arginfo_dictionary_suggest, ZEND_ACC_PUBLIC)
     PHP_ME(Hunspell_Dictionary, analyzeRaw, arginfo_dictionary_analyzeRaw, ZEND_ACC_PUBLIC)
     PHP_ME(Hunspell_Dictionary, analyze, arginfo_dictionary_analyze, ZEND_ACC_PUBLIC)
+    PHP_ME(Hunspell_Dictionary, stem, arginfo_dictionary_stem, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
