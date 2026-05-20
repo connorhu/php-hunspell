@@ -2,7 +2,10 @@
 
 extern "C" {
 #include "zend_exceptions.h"
+#include "ext/spl/spl_exceptions.h"
 }
+
+#include <unistd.h>
 
 zend_class_entry *hunspell_dictionary_ce = nullptr;
 static zend_object_handlers hunspell_dictionary_handlers;
@@ -26,7 +29,53 @@ static void hunspell_dictionary_free(zend_object *zobj) {
     zend_object_std_dtor(&obj->std);
 }
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_dictionary_construct, 0, 0, 2)
+    ZEND_ARG_TYPE_INFO(0, affPath, IS_STRING, 0)
+    ZEND_ARG_TYPE_INFO(0, dicPath, IS_STRING, 0)
+    ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, key, IS_STRING, 1, "null")
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(Hunspell_Dictionary, __construct) {
+    zend_string *aff_path, *dic_path;
+    zend_string *key = nullptr;
+
+    ZEND_PARSE_PARAMETERS_START(2, 3)
+        Z_PARAM_STR(aff_path)
+        Z_PARAM_STR(dic_path)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_STR_OR_NULL(key)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if (key != nullptr) {
+        zend_throw_exception(spl_ce_InvalidArgumentException,
+            "Encrypted dictionary keys are not supported in this release", 0);
+        return;
+    }
+
+    /* Pre-check that both files are readable before calling Hunspell_create,
+     * because libhunspell 1.7.x never returns NULL — it prints errors to
+     * stderr and returns a broken-but-non-null handle on failure. */
+    if (access(ZSTR_VAL(aff_path), R_OK) != 0 ||
+        access(ZSTR_VAL(dic_path), R_OK) != 0) {
+        zend_throw_exception_ex(hunspell_dictionary_load_exception_ce, 0,
+            "Failed to load Hunspell dictionary (aff='%s', dic='%s')",
+            ZSTR_VAL(aff_path), ZSTR_VAL(dic_path));
+        return;
+    }
+
+    php_hunspell_object *obj = php_hunspell_from_obj(Z_OBJ_P(ZEND_THIS));
+    obj->handle = Hunspell_create(ZSTR_VAL(aff_path), ZSTR_VAL(dic_path));
+    if (obj->handle == nullptr) {
+        zend_throw_exception_ex(hunspell_dictionary_load_exception_ce, 0,
+            "Failed to load Hunspell dictionary (aff='%s', dic='%s')",
+            ZSTR_VAL(aff_path), ZSTR_VAL(dic_path));
+        return;
+    }
+}
+
 static const zend_function_entry hunspell_dictionary_methods[] = {
+    PHP_ME(Hunspell_Dictionary, __construct, arginfo_dictionary_construct,
+           ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_FE_END
 };
 
