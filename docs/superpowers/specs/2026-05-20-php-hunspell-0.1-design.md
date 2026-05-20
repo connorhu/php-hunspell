@@ -24,7 +24,7 @@ The 0.1 release is the foundation; the 0.2 and 0.3 releases (`MagyarIspell\*` an
 - Full P0 surface (lifecycle, `spell`, `suggest`, `analyzeRaw`, `analyze`, `stem`, `generate`, `getEncoding`, `getWordChars`) and full P1 surface (`add`, `addWithAffix`, `remove`, `addDictionary`, `getVersion`).
 - pkg-config–based libhunspell detection in `config.m4` with a minimum version of 1.6.0.
 - Day-0 PIE distribution metadata (`composer.json` with `"type": "php-ext"`).
-- Day-0 GitHub Actions workflow covering Ubuntu × {PHP 8.2, 8.3, 8.4}, an Ubuntu ZTS job, a macOS job, and an AddressSanitizer job.
+- Day-0 GitHub Actions workflow covering Ubuntu × {PHP 8.2, 8.3, 8.4, 8.5}, an Ubuntu ZTS job, a macOS job, and an AddressSanitizer job.
 - A test suite of phpt files (≈13–15 files at completion) plus a tiny `.aff`/`.dic` test dictionary.
 
 ### Explicit non-goals for 0.1
@@ -355,7 +355,7 @@ The test dictionary is a synthetic minimal `.aff`/`.dic` that exercises every AP
 
 ```json
 {
-    "name": "nepenektar/php-hunspell",
+    "name": "codeconjure/php-hunspell",
     "description": "PHP binding for the Hunspell spell-checker and morphological analyzer",
     "type": "php-ext",
     "license": "PHP-3.01",
@@ -369,7 +369,7 @@ The test dictionary is a synthetic minimal `.aff`/`.dic` that exercises every AP
 }
 ```
 
-`"type": "php-ext"` tells PIE this is a buildable extension. `pie install ./` (local) or `pie install nepenektar/php-hunspell` (after release to Packagist) runs `phpize && ./configure && make && make install` and adds the `extension=hunspell` line to the active `php.ini`. The declared ZTS support is backed by a real ZTS job in CI (below), not just a flag.
+`"type": "php-ext"` tells PIE this is a buildable extension. `pie install ./` (local) or `pie install codeconjure/php-hunspell` (after release to Packagist) runs `phpize && ./configure && make && make install` and adds the `extension=hunspell` line to the active `php.ini`. The declared ZTS support is backed by a real ZTS job in CI (below), not just a flag.
 
 ### GitHub Actions matrix
 
@@ -377,7 +377,7 @@ The test dictionary is a synthetic minimal `.aff`/`.dic` that exercises every AP
 
 | Job | OS | PHP | Build | Tests |
 |---|---|---|---|---|
-| `linux-pie` | ubuntu-latest | 8.2 / 8.3 / 8.4 (matrix) | `pie install ./` | `make test` |
+| `linux-pie` | ubuntu-latest | 8.2 / 8.3 / 8.4 / 8.5 (matrix) | `pie install ./` | `make test` |
 | `linux-phpize` | ubuntu-latest | 8.3 | `phpize && ./configure && make` | `make test` |
 | `linux-zts` | ubuntu-latest | 8.3 (ZTS) | phpize | `make test` |
 | `macos` | macos-latest | 8.3 | `pie install ./` (libhunspell via brew) | `make test` |
@@ -391,7 +391,7 @@ Sketch of the `linux-pie` job:
 
 ```yaml
 strategy:
-  matrix: { php: ['8.2', '8.3', '8.4'] }
+  matrix: { php: ['8.2', '8.3', '8.4', '8.5'] }
 steps:
   - uses: actions/checkout@v4
   - uses: shivammathur/setup-php@v2
@@ -409,7 +409,7 @@ steps:
 All of the following must hold before tagging 0.1:
 
 - The complete PHP API in §5 is implemented (Dictionary 14 methods + Analysis 5 methods + lifecycle handlers).
-- All phpt tests are green on every CI job (Linux × {8.2, 8.3, 8.4} + ZTS + macOS + ASAN).
+- All phpt tests are green on every CI job (Linux × {8.2, 8.3, 8.4, 8.5} + ZTS + macOS + ASAN).
 - The four day-0 phpt tests (001, 010, 020, 040) are green from the first commit.
 - `pie install ./` succeeds on both Ubuntu and macOS GitHub runners.
 - `composer.json` declares `"type": "php-ext"`.

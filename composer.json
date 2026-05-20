@@ -1,0 +1,15 @@
+{
+    "name": "codeconjure/php-hunspell",
+    "description": "PHP binding for the Hunspell spell-checker and morphological analyzer",
+    "type": "php-ext",
+    "license": "PHP-3.01",
+    "require": {
+        "php": ">=8.2"
+    },
+    "php-ext": {
+        "extension-name": "hunspell",
+        "support-zts": true,
+        "support-nts": true,
+        "configure-options": []
+    }
+}

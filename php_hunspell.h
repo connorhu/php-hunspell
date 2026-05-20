@@ -1,91 +1,45 @@
-/*
-  +----------------------------------------------------------------------+
-  | PHP Version 5                                                        |
-  +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2007 The PHP Group                                |
-  +----------------------------------------------------------------------+
-  | This source file is subject to version 3.01 of the PHP license,      |
-  | that is bundled with this package in the file LICENSE, and is        |
-  | available through the world-wide-web at the following url:           |
-  | http://www.php.net/license/3_01.txt                                  |
-  | If you did not receive a copy of the PHP license and are unable to   |
-  | obtain it through the world-wide-web, please send a note to          |
-  | license@php.net so we can mail you a copy immediately.               |
-  +----------------------------------------------------------------------+
-  | Author:                                                              |
-  +----------------------------------------------------------------------+
-*/
-
-/* $Id: header,v 1.16.2.1.2.1 2007/01/01 19:32:09 iliaa Exp $ */
-
 #ifndef PHP_HUNSPELL_H
 #define PHP_HUNSPELL_H
+
+extern "C" {
+#include "php.h"
+}
+
+#define PHP_HUNSPELL_VERSION "0.1.0"
 
 extern zend_module_entry hunspell_module_entry;
 #define phpext_hunspell_ptr &hunspell_module_entry
 
-#ifdef PHP_WIN32
-#define PHP_HUNSPELL_API __declspec(dllexport)
-#else
-#define PHP_HUNSPELL_API
-#endif
+extern zend_class_entry *hunspell_exception_ce;             /* interface */
+extern zend_class_entry *hunspell_dictionary_load_exception_ce;
 
-#ifdef ZTS
-#include "TSRM.h"
-#endif
+void hunspell_register_exception_classes(void);
 
-PHP_MINIT_FUNCTION(hunspell);
-PHP_MSHUTDOWN_FUNCTION(hunspell);
-PHP_RINIT_FUNCTION(hunspell);
-PHP_RSHUTDOWN_FUNCTION(hunspell);
-PHP_MINFO_FUNCTION(hunspell);
+extern "C" {
+#include <hunspell/hunspell.h>
+}
 
-PHP_FUNCTION(confirm_hunspell_compiled);	/* For testing, remove later. */
+typedef struct {
+    Hunhandle *handle;
+    zend_object std;        /* must be last */
+} php_hunspell_object;
 
-typedef struct _ze_hunspell_object {
-    zend_object zo;
-    Hunhandle *dic;
-    char *aff_path;
-    int aff_path_len;
-    char *dic_path;
-    int dic_path_len;
-} ze_hunspell_object;
+extern zend_class_entry *hunspell_dictionary_ce;
 
+inline php_hunspell_object *php_hunspell_from_obj(zend_object *obj) {
+    return reinterpret_cast<php_hunspell_object *>(
+        reinterpret_cast<char *>(obj) - XtOffsetOf(php_hunspell_object, std));
+}
 
-/* 
-  	Declare any global variables you may need between the BEGIN
-	and END macros here:     
+void hunspell_register_dictionary_class(void);
 
-ZEND_BEGIN_MODULE_GLOBALS(hunspell)
-	long  global_value;
-	char *global_string;
-ZEND_END_MODULE_GLOBALS(hunspell)
-*/
+extern zend_class_entry *hunspell_analysis_ce;
 
-/* In every utility function you add that needs to use variables 
-   in php_hunspell_globals, call TSRMLS_FETCH(); after declaring other 
-   variables used by that function, or better yet, pass in TSRMLS_CC
-   after the last function argument and declare your utility function
-   with TSRMLS_DC after the last declared argument.  Always refer to
-   the globals in your function as HUNSPELL_G(variable).  You are 
-   encouraged to rename these macros something shorter, see
-   examples in any other php module directory.
-*/
+void hunspell_register_analysis_class(void);
 
-#ifdef ZTS
-#define HUNSPELL_G(v) TSRMG(hunspell_globals_id, zend_hunspell_globals *, v)
-#else
-#define HUNSPELL_G(v) (hunspell_globals.v)
-#endif
+/* Parser: tokenize raw on whitespace, split each token on first ':'.
+ * Repeated keys append. Tokens without ':' are skipped.
+ * out_fields is initialized as an associative array by the parser. */
+void hunspell_parse_analysis_line(const char *raw, size_t len, zval *out_fields);
 
-#endif	/* PHP_HUNSPELL_H */
-
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+#endif /* PHP_HUNSPELL_H */
