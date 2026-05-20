@@ -15,4 +15,22 @@ extern zend_class_entry *hunspell_dictionary_load_exception_ce;
 
 void hunspell_register_exception_classes(void);
 
+extern "C" {
+#include <hunspell/hunspell.h>
+}
+
+typedef struct {
+    Hunhandle *handle;
+    zend_object std;        /* must be last */
+} php_hunspell_object;
+
+extern zend_class_entry *hunspell_dictionary_ce;
+
+static inline php_hunspell_object *php_hunspell_from_obj(zend_object *obj) {
+    return reinterpret_cast<php_hunspell_object *>(
+        reinterpret_cast<char *>(obj) - XtOffsetOf(php_hunspell_object, std));
+}
+
+void hunspell_register_dictionary_class(void);
+
 #endif /* PHP_HUNSPELL_H */

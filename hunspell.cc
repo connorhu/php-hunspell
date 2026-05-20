@@ -7,6 +7,7 @@ extern "C" {
 
 static PHP_MINIT_FUNCTION(hunspell) {
     hunspell_register_exception_classes();
+    hunspell_register_dictionary_class();
     return SUCCESS;
 }
 
